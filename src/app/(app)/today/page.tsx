@@ -73,7 +73,7 @@ export default function TodayPage() {
 
   const doneCount = todays.filter((h) => habitMetTarget(h, entries, today)).length;
 
-  async function commit(run: () => Promise<void>, habitName: string) {
+  async function commit(run: () => Promise<unknown>, habitName: string) {
     setPendingId(habitName);
     try {
       await run();
@@ -89,32 +89,25 @@ export default function TodayPage() {
     }
   }
 
+  // Check-ins are written with a null owner when signed out. That is the whole
+  // point of the local-first design: the row lives in IndexedDB, and the first
+  // sign-in adopts it. Requiring a session here would make the guest-to-account
+  // merge unreachable, because no guest check-ins could ever exist to merge.
+
   function handleTick(habit: Habit) {
-    return commit(
-      async () => {
-        if (!userId) throw new Error("Sign in to save check-ins");
-        await toggleTick(habit.id, today, userId);
-      },
-      habit.id,
-    );
+    return commit(() => toggleTick(habit.id, today, userId), habit.id);
   }
 
   function handleStep(habit: Habit, delta: number) {
     return commit(
-      async () => {
-        if (!userId) throw new Error("Sign in to save check-ins");
-        await incrementEntry(habit.id, today, delta, userId);
-      },
+      () => incrementEntry(habit.id, today, delta, userId),
       habit.id,
     );
   }
 
   function handleCount(habit: Habit, value: number) {
     return commit(
-      async () => {
-        if (!userId) throw new Error("Sign in to save check-ins");
-        await setEntryValue(habit.id, today, value, userId);
-      },
+      () => setEntryValue(habit.id, today, value, userId),
       habit.id,
     );
   }
