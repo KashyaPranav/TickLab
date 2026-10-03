@@ -1,26 +1,182 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Design tokens. Light values live on :root, dark overrides live on .dark so the
+ * theme is driven by a single class on <html> rather than only by the OS setting.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: oklch(99% 0.004 106);
+  --surface: oklch(100% 0 0);
+  --surface-muted: oklch(96.5% 0.006 106);
+  --border: oklch(90% 0.008 106);
+  --border-strong: oklch(82% 0.012 106);
+
+  --text: oklch(21% 0.012 265);
+  --text-muted: oklch(50% 0.014 265);
+  --text-subtle: oklch(64% 0.012 265);
+
+  --accent: oklch(58% 0.16 158);
+  --accent-strong: oklch(48% 0.15 158);
+  --accent-soft: oklch(95% 0.045 158);
+  --accent-contrast: oklch(100% 0 0);
+
+  --warn: oklch(72% 0.15 75);
+  --warn-soft: oklch(96% 0.05 75);
+  --danger: oklch(58% 0.19 22);
+  --danger-soft: oklch(96% 0.04 22);
+  --info: oklch(58% 0.13 235);
+  --info-soft: oklch(95% 0.035 235);
+
+  --ring-track: oklch(92% 0.008 106);
+
+  --radius: 0.875rem;
+  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.04), 0 1px 3px oklch(0% 0 0 / 0.03);
+  --shadow-pop: 0 8px 24px oklch(0% 0 0 / 0.1), 0 2px 6px oklch(0% 0 0 / 0.06);
+
+  --tap: 2.75rem;
+}
+
+.dark {
+  --bg: oklch(17% 0.008 265);
+  --surface: oklch(21% 0.01 265);
+  --surface-muted: oklch(25.5% 0.012 265);
+  --border: oklch(31% 0.014 265);
+  --border-strong: oklch(41% 0.016 265);
+
+  --text: oklch(96% 0.004 106);
+  --text-muted: oklch(72% 0.014 265);
+  --text-subtle: oklch(58% 0.014 265);
+
+  --accent: oklch(72% 0.15 158);
+  --accent-strong: oklch(80% 0.15 158);
+  --accent-soft: oklch(30% 0.05 158);
+  --accent-contrast: oklch(17% 0.01 265);
+
+  --warn: oklch(78% 0.14 75);
+  --warn-soft: oklch(30% 0.05 75);
+  --danger: oklch(70% 0.16 22);
+  --danger-soft: oklch(30% 0.06 22);
+  --info: oklch(72% 0.12 235);
+  --info-soft: oklch(29% 0.05 235);
+
+  --ring-track: oklch(28% 0.014 265);
+
+  --shadow-card: 0 1px 2px oklch(0% 0 0 / 0.3);
+  --shadow-pop: 0 10px 30px oklch(0% 0 0 / 0.5);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-subtle: var(--text-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-contrast: var(--accent-contrast);
+
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-ring-track: var(--ring-track);
+
+  --radius-card: var(--radius);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --tap-size: var(--tap);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    /* Guards the "zero horizontal overflow" target. */
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Reserve a comfortable minimum target size without breaking inline text. */
+  button,
+  [role="button"],
+  a.tappable,
+  input[type="checkbox"],
+  input[type="radio"] {
+    touch-action: manipulation;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Screen-reader-only text that stays focusable for skip links. */
+@utility sr-only-focusable {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+
+  &:focus {
+    position: fixed;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
 }
